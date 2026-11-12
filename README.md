@@ -2,7 +2,7 @@ Chipper Project, CHIP-8 Emulator
 
 Chipper is a CHIP-8 interpreter/emulator project which I made using Python and Pygame, recreating the CHIP-8 virtual machine. I implemented the CHIP-8 instruction set, made the display 64×32, added 4 KB of memory, ROM loading, and various other features to create a basic CHIP-8 emulator.
 
-I tested the emulator using pong.rom and tetris.rom, both taken from badlogic, who has uploaded various ROMs for the CHIP-8. The controls use the standard CHIP-8 keyboard layout, using the 1 2 3 4 Q W E R A S D F Z X C V keys on the keyboard.
+I tested the emulator using pong.rom and tetris.rom, both taken from badlogic, who has uploaded various ROMs for the CHIP-8. The controls use the standard CHIP-8 keyboard layout, using the 1 2 3 4 Q W E R A S D F Z X C V keys on the keyboard. To quit the game, Press ESC when inside any game, Pong or tetris and you'll go back to menu, press ESC in the menu and the program will close
 
 To install this, you must have Python 3.10 or newer and Pygame 2.6.1. Simply clone the repository, install Pygame, and run the emulator.
 

@@ -21,6 +21,51 @@ beep_sound = pygame.mixer.Sound(buffer=samples)
 pygame.display.set_caption("Chipper, Chip8 Emulator")
 screen = pygame.display.set_mode((640, 320))
 
+def resource_path(filename):
+    return os.path.join(
+        getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
+        filename
+    )
+
+menu_font = pygame.font.Font(None, 55)
+option_font = pygame.font.Font(None, 35)
+
+selected_rom = None
+menu_running = True
+
+while menu_running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                selected_rom = "pong.rom"
+                menu_running = False
+
+            elif event.key == pygame.K_2:
+                selected_rom = "tetris.rom"
+                menu_running = False
+
+            elif event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+
+    screen.fill((0, 0, 0))
+
+    title_text = menu_font.render("CHIPPER", True, (255, 255, 255))
+    pong_text = option_font.render("1 - Pong", True, (255, 255, 255))
+    tetris_text = option_font.render("2 - Tetris", True, (255, 255, 255))
+
+    screen.blit(title_text, title_text.get_rect(center=(320, 90)))
+    screen.blit(pong_text, pong_text.get_rect(center=(320, 170)))
+    screen.blit(tetris_text, tetris_text.get_rect(center=(320, 220)))
+
+    pygame.display.flip()
+
+    pygame.time.Clock().tick(60)
+
 display = [[0 for x in range(64)] for y in range(32)]
 
 running = True
@@ -51,10 +96,7 @@ fontset = [
 for i in range(len(fontset)):
     memory[0x50 + i] = fontset[i]
 
-rom_path = os.path.join(
-    getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
-    "pong.rom"
-)
+rom_path = resource_path(selected_rom)
 
 with open(rom_path, "rb") as rom_file:
     rom_data = rom_file.read()
@@ -106,12 +148,75 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
         elif event.type == pygame.KEYDOWN:
-            if event.key in keys_mapping:
+            if event.key == pygame.K_ESCAPE:
+                selected_rom = None
+                menu_running = True
+
+                while menu_running:
+                    for menu_event in pygame.event.get():
+                        if menu_event.type == pygame.QUIT:
+                            pygame.quit()
+                            sys.exit()
+
+                        elif menu_event.type == pygame.KEYDOWN:
+                            if menu_event.key == pygame.K_1:
+                                selected_rom = "pong.rom"
+                                menu_running = False
+
+                            elif menu_event.key == pygame.K_2:
+                                selected_rom = "tetris.rom"
+                                menu_running = False
+
+                            elif menu_event.key == pygame.K_ESCAPE:
+                                pygame.quit()
+                                sys.exit()
+
+                    screen.fill((0, 0, 0))
+
+                    title_text = menu_font.render("CHIPPER", True, (255, 255, 255))
+                    pong_text = option_font.render("1 - Pong", True, (255, 255, 255))
+                    tetris_text = option_font.render("2 - Tetris", True, (255, 255, 255))
+
+                    screen.blit(title_text, title_text.get_rect(center=(320, 90)))
+                    screen.blit(pong_text, pong_text.get_rect(center=(320, 170)))
+                    screen.blit(tetris_text, tetris_text.get_rect(center=(320, 220)))
+
+                    pygame.display.flip()
+                    pygame.time.Clock().tick(60)
+
+                display = [[0 for x in range(64)] for y in range(32)]
+                memory = bytearray(4096)
+
+                for i in range(len(fontset)):
+                    memory[0x50 + i] = fontset[i]
+
+                rom_path = resource_path(selected_rom)
+
+                with open(rom_path, "rb") as rom_file:
+                    rom_data = rom_file.read()
+
+                for i in range(len(rom_data)):
+                    memory[0x200 + i] = rom_data[i]
+
+                registers = bytearray(16)
+                keys = [0] * 16
+                index = 0
+                stack = []
+                pc = 0x200
+                delay_timer = 0
+                sound_timer = 0
+                beep_sound.stop()
+                last_timer_tick = pygame.time.get_ticks()
+
+            elif event.key in keys_mapping:
                 keys[keys_mapping[event.key]] = 1
+
         elif event.type == pygame.KEYUP:
             if event.key in keys_mapping:
                 keys[keys_mapping[event.key]] = 0
+
     current_ticks = pygame.time.get_ticks()
     if current_ticks - last_timer_tick >= 1000 / 60:
         if delay_timer > 0:
