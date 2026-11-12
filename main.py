@@ -2,6 +2,8 @@ import pygame
 import random
 import math
 from array import array
+import os
+import sys
 
 pygame.init()
 pygame.mixer.init()
@@ -49,7 +51,12 @@ fontset = [
 for i in range(len(fontset)):
     memory[0x50 + i] = fontset[i]
 
-with open("pong.rom", "rb") as rom_file:
+rom_path = os.path.join(
+    getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
+    "pong.rom"
+)
+
+with open(rom_path, "rb") as rom_file:
     rom_data = rom_file.read()
 
 for i in range(len(rom_data)):
